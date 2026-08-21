@@ -25,7 +25,9 @@ async function bootstrap() {
     credentials: true,
   });
 
-  app.setGlobalPrefix('api');
+  // /health stays outside the /api prefix — Render's health check probes it
+  // directly at that exact path.
+  app.setGlobalPrefix('api', { exclude: ['health'] });
 
   app.useGlobalPipes(
     new ValidationPipe({

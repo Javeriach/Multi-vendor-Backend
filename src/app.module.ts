@@ -10,7 +10,9 @@ import { CategoriesModule } from './categories/categories.module';
 import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
+import { getPostgresConnectionOptions } from './database/postgres-connection-options';
 import { entities } from './entities';
+import { HealthController } from './health/health.controller';
 import { OrdersModule } from './orders/orders.module';
 import { ProductsModule } from './products/products.module';
 import { ReviewsModule } from './reviews/reviews.module';
@@ -26,12 +28,7 @@ import { WishlistModule } from './wishlist/wishlist.module';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        type: 'postgres' as const,
-        host: config.get<string>('DATABASE_HOST'),
-        port: config.get<number>('DATABASE_PORT'),
-        username: config.get<string>('DATABASE_USERNAME'),
-        password: config.get<string>('DATABASE_PASSWORD'),
-        database: config.get<string>('DATABASE_NAME'),
+        ...getPostgresConnectionOptions((key) => config.get<string>(key)),
         namingStrategy: new SnakeNamingStrategy(),
         entities,
         // Never true here — schema changes only ever happen through a
@@ -52,6 +49,7 @@ import { WishlistModule } from './wishlist/wishlist.module';
     ReviewsModule,
     UploadsModule,
   ],
+  controllers: [HealthController],
   providers: [
     // Every route requires a valid JWT by default (opt out with @Public()) —
     // then RolesGuard restricts further to specific roles where @Roles() is
