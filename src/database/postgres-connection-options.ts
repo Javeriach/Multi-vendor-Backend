@@ -2,7 +2,7 @@ import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConne
 
 type ConnectionFields = Pick<
   PostgresConnectionOptions,
-  'type' | 'url' | 'host' | 'port' | 'username' | 'password' | 'database' | 'ssl'
+  'type' | 'host' | 'port' | 'username' | 'password' | 'database' | 'ssl'
 >;
 
 /**
@@ -12,6 +12,14 @@ type ConnectionFields = Pick<
  * Supports two shapes because local dev and most managed Postgres hosts
  * (Render, Neon, etc.) use different conventions:
  *  - DATABASE_URL: a single connection string (what Neon/Render provide).
+ *    Parsed into discrete fields here rather than passed through as
+ *    TypeORM's `url` shorthand — confirmed by a live production failure
+ *    that `url` + a separate top-level `ssl` option together silently
+ *    drop SSL (Neon then rejects with "connection is insecure, try using
+ *    sslmode=require"), even though the exact same credentials connect
+ *    immediately via discrete fields + ssl, and a raw `pg.Client` given
+ *    the identical connectionString + ssl option works every time. This
+ *    sidesteps whatever TypeORM's url-handling path does differently.
  *    Neon requires TLS but its cert isn't always in Node's default trust
  *    store, hence rejectUnauthorized: false — acceptable here since we're
  *    still authenticating with a secret in the URL itself, and this is a
@@ -22,9 +30,14 @@ export function getPostgresConnectionOptions(env: (key: string) => string | unde
   const databaseUrl = env('DATABASE_URL');
 
   if (databaseUrl) {
+    const parsed = new URL(databaseUrl);
     return {
       type: 'postgres',
-      url: databaseUrl,
+      host: parsed.hostname,
+      port: Number(parsed.port || 5432),
+      username: decodeURIComponent(parsed.username),
+      password: decodeURIComponent(parsed.password),
+      database: parsed.pathname.replace(/^\//, ''),
       ssl: { rejectUnauthorized: false },
     };
   }

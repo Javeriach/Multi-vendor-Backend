@@ -31,10 +31,13 @@ export async function createApp(): Promise<NestExpressApplication> {
     credentials: true,
   });
 
-  // /health stays outside the /api prefix — Render's health check (and
-  // uptime pings against a Vercel deployment) probe it directly at that
-  // exact path.
-  app.setGlobalPrefix('api', { exclude: ['health'] });
+  // /health AND the bare root / both stay outside the /api prefix —
+  // Render's health check (and uptime pings against a Vercel deployment)
+  // probe /health directly, while a plain "is this thing alive" visit to
+  // the domain root would otherwise 404 despite the app being perfectly
+  // healthy (see HealthController, which serves the same real health
+  // report at both paths).
+  app.setGlobalPrefix('api', { exclude: ['health', '/'] });
 
   app.useGlobalPipes(
     new ValidationPipe({
