@@ -65,8 +65,13 @@ export class AuthController {
     const isProduction = this.configService.get<string>('NODE_ENV') === 'production';
     res.cookie(COOKIE_NAME, token, {
       httpOnly: true,
+      // 'strict'/'lax' never ride along on a cross-site fetch — the
+      // frontend and backend are separate origins (different Vercel
+      // deployments), so every authenticated request after login is
+      // cross-site by definition and needs SameSite=None (which browsers
+      // only honor when paired with Secure).
       secure: isProduction,
-      sameSite: isProduction ? 'strict' : 'lax',
+      sameSite: isProduction ? 'none' : 'lax',
       maxAge: COOKIE_MAX_AGE_MS,
       path: '/',
     });

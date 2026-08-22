@@ -26,8 +26,18 @@ export async function createApp(): Promise<NestExpressApplication> {
   // WebSocket transport wired up at all.
   app.useWebSocketAdapter(new IoAdapter(app));
 
+  // CORS_ORIGIN is a comma-separated list so both the production domain and
+  // any preview/staging URLs can be allowed at once. Origin headers never
+  // carry a trailing slash, so trimming one off each configured value is
+  // what makes a copy-pasted "https://example.com/" actually match.
+  const allowedOrigins = config
+    .get<string>('CORS_ORIGIN', 'http://localhost:3000')
+    .split(',')
+    .map((origin) => origin.trim().replace(/\/$/, ''))
+    .filter(Boolean);
+
   app.enableCors({
-    origin: config.get<string>('CORS_ORIGIN', 'http://localhost:3000'),
+    origin: allowedOrigins,
     credentials: true,
   });
 
