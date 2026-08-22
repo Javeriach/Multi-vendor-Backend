@@ -7,6 +7,7 @@ import { AddressesModule } from './addresses/addresses.module';
 import { AuthModule } from './auth/auth.module';
 import { CartModule } from './cart/cart.module';
 import { CategoriesModule } from './categories/categories.module';
+import { ChatModule } from './chat/chat.module';
 import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
@@ -48,6 +49,7 @@ import { WishlistModule } from './wishlist/wishlist.module';
     OrdersModule,
     ReviewsModule,
     UploadsModule,
+    ChatModule,
   ],
   controllers: [HealthController],
   providers: [

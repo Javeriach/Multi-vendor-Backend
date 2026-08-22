@@ -2,7 +2,9 @@ import { Address } from './address.entity';
 import { Cart } from './cart.entity';
 import { CartItem } from './cart-item.entity';
 import { Category } from './category.entity';
+import { Conversation } from './conversation.entity';
 import { Inventory } from './inventory.entity';
+import { Message } from './message.entity';
 import { Order } from './order.entity';
 import { OrderItem } from './order-item.entity';
 import { Payment } from './payment.entity';
@@ -22,7 +24,9 @@ export {
   Cart,
   CartItem,
   Category,
+  Conversation,
   Inventory,
+  Message,
   Order,
   OrderItem,
   Payment,
@@ -60,4 +64,6 @@ export const entities = [
   OrderItem,
   Payment,
   Review,
+  Conversation,
+  Message,
 ];

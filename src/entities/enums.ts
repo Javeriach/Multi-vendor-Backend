@@ -72,3 +72,8 @@ export enum PaymentStatus {
   SUCCEEDED = 'succeeded',
   FAILED = 'failed',
 }
+
+export enum MessageType {
+  TEXT = 'text',
+  IMAGE = 'image',
+}
